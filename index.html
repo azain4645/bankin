@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>canvasで図形を描く</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<style>
+
+.colorDiv{
+  width: 80px;
+  height: 150px;
+  margin: 5px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.colorSample{
+  width: 80px;
+  height: 80px;
+  /* margin: 5px; */
+}
+
+.active{
+  border: 3px red solid;
+  box-sizing: border-box;
+}
+</style>
+
+</head>
+<body">
+<canvas width="500" height="500" id="design" style="background-color:gray;"></canvas>
+<button onclick="DrawLine()">Draw</button>
+<button onclick="SetImage()">画像をセット</button>
+
+<br>
+<p>サンプル作成</p>
+<canvas id="sample" width="150" height="150"></canvas>
+<button onclick="makeSample()">サンプル作成</button>
+線の太さ
+<input type="number" id="line" value="1">
+間隔
+<input type="number" id="interval" value="20">
+
+<div id="colorList" style="margin-top: 10px;">
+</div>
+
+<p id="info"></p>
+
+<script type="text/javascript">
+// 色リスト
+var colorList = {
+  'コゲチャ' : 'rgb(65,64,62)',
+  'モスグリーン' : 'rgb(44,70,60)',
+  'レッドブラウン' : 'rgb(105,74,56)',
+  'ブリックレッド' : 'rgb(106,65,60)',
+  'オレンジ' : 'rgb(171,134,50)',
+  'ブラウン' : 'rgb(80,64,62)',
+  'ブラック' : 'rgb(30,17,13)',
+  'ブラックパール' : 'rgb(61,55,54)',
+  'ダークブルー' : 'rgb(5,57,67)',
+};
+
+var ListBox = document.getElementById('colorList');
+Object.keys(colorList).forEach(function(key){
+  // console.log(key + ' = ' +colorList[key]);
+  var new_div = document.createElement('div');
+  new_div.classList.add('colorDiv');
+
+  var color_div = document.createElement('div');
+  color_div.style.backgroundColor = colorList[key];
+  color_div.classList.add('colorSample');
+  new_div.appendChild(color_div);
+
+  var color_text = document.createElement('p');
+  color_text.textContent = key;
+  new_div.appendChild(color_text);
+
+  ListBox.appendChild(new_div);
+});
+
+$('body').on('click', '.colorSample', function(){
+  $('.colorSample').removeClass('active');
+  $(this).addClass('active');
+});
+
+$('.colorSample:first').addClass('active');
+
+//描画コンテキストの取得
+var canvas = document.getElementById('design');
+var context = canvas.getContext('2d');
+
+var sample = document.getElementById('sample');
+var sampleCtx = sample.getContext('2d');
+makeSample();
+
+//マウスの座標
+var mouse = {
+  x: 0,
+  y: 0,
+};
+
+var posArr = [];
+
+canvas.addEventListener("mousedown", function(e){
+  var rect = e.target.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
+
+  var mousePos = { 'x' : mouse.x , 'y' : mouse.y}
+  posArr.push(mousePos);
+
+  document.getElementById("info").innerHTML =
+  " canvas x座標 = " + Math.floor(mouse.x) + "px" +
+  " canvas y座標 = " + Math.floor(mouse.y) + "px" + '<br>';
+
+  console.log(posArr);
+});
+
+function makeSample(){
+  var line = document.getElementById('line').value;
+  var interval = document.getElementById('interval').value;
+
+  var remainder = 150 % interval;
+  var reWrite = 150 / interval;
+  sample.width = 150 - remainder;
+
+  var color = $('.active').css('background-color');
+
+  sampleCtx.fillStyle = color;
+  sampleCtx.fillRect (0, 0, 150, 150);
+
+  sampleCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
+
+  let w = 0;
+  for(let i = 0; i < reWrite; i++)
+  {
+    w = i * interval;
+    sampleCtx.fillRect (w, 0, line, 150);
+  }
+}
+
+function DrawLine(){
+  context.beginPath();
+
+  var img = new Image();
+  // img.src = 'IMG_S_209_w320px.jpg';
+  // img.onload = function(){
+  var pattern = context.createPattern(sample, 'repeat');
+
+    posArr.forEach(function(value , index){
+      if (index == 0)
+      {
+        context.moveTo(value.x, value.y);
+      }
+      else
+      {
+        context.lineTo(value.x, value.y);
+      }
+    });
+
+    context.fillStyle = pattern;
+    context.fill();
+
+    posArr = [];
+  // }
+}
+
+function SetImage(){
+  var img = new Image();
+  img.src = "サイディング外壁.jpg";
+  //画像をcanvasに設定
+  img.onload = function(){
+    context.drawImage(img, 0, 0, 500, 500);  //400x300に縮小表示
+  }
+}
+</script>
+</body>
+</html>
