@@ -133,8 +133,6 @@ function makeSample(){
   sampleCtx.fillStyle = color;
   sampleCtx.fillRect (0, 0, 150, 150);
 
-
-
   let w = 0;
   for(let i = 0; i < reWrite; i++)
   {
@@ -176,7 +174,7 @@ function DrawLine(){
 
 function SetImage(){
   var img = new Image();
-  img.src = "サイディング外壁.jpg";
+  img.src = "sample.jpg";
   //画像をcanvasに設定
   img.onload = function(){
     context.drawImage(img, 0, 0, 500, 500);  //400x300に縮小表示
